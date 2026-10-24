@@ -75,7 +75,7 @@
       <!-- Header Controls: Sync Now + Floating Menu -->
       <div class="flex items-center space-x-2">
         <!-- Sync Now Cloud Button -->
-        <button onclick="triggerManualSync()" id="btnSyncNow" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-xs font-semibold text-blue-700 shadow-xs transition active:scale-95" title="Synchronize all local data with Google Sheets">
+        <button onclick="triggerManualSync()" id="btnSyncNow" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-xs font-semibold text-blue-700 shadow-xs transition active:scale-95" title="Synchronize with live Google Sheet">
           <i data-lucide="refresh-cw" id="syncIcon" class="w-3.5 h-3.5 text-blue-600"></i>
           <span id="syncButtonLabel" class="hidden sm:inline">Sync Cloud</span>
         </button>
@@ -90,15 +90,6 @@
           <!-- Floating Dropdown Panel -->
           <div id="topDropdownMenu" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200/90 py-1.5 z-50 divide-y divide-slate-100">
             <div class="py-1">
-              <button onclick="openMenuAction('settings')" class="w-full text-left px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 flex items-center space-x-2.5 transition">
-                <div class="w-6 h-6 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center">
-                  <i data-lucide="settings" class="w-3.5 h-3.5"></i>
-                </div>
-                <div>
-                  <span class="block text-xs font-bold text-slate-800">Settings &amp; Cross-Device</span>
-                  <span class="block text-[10px] text-slate-400">Sheet URL, Apps Script &amp; Mobile Link</span>
-                </div>
-              </button>
               <button onclick="openMenuAction('upload')" class="w-full text-left px-3.5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600 flex items-center space-x-2.5 transition">
                 <div class="w-6 h-6 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center">
                   <i data-lucide="upload" class="w-3.5 h-3.5"></i>
@@ -164,6 +155,14 @@
   <!-- MAIN WORKSPACE CONTENT -->
   <!-- ========================================== -->
   <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:p-8 mb-16 md:mb-6">
+    <!-- Live Cloud Sync Status Banner -->
+    <div id="cloudSyncBanner" class="hidden mb-4 p-3 bg-blue-50/80 border border-blue-200 rounded-xl flex items-center justify-between text-xs text-blue-800">
+      <div class="flex items-center space-x-2">
+        <i data-lucide="cloud-download" class="w-4 h-4 text-blue-600 animate-bounce"></i>
+        <span id="cloudSyncBannerText">Fetching live records from Google Sheet...</span>
+      </div>
+      <button onclick="dismissSyncBanner()" class="text-blue-500 hover:text-blue-700 font-bold">×</button>
+    </div>
 
     <!-- TAB 1: HELPDESK TICKETS -->
     <section id="tab-tickets" class="tab-pane space-y-4 sm:space-y-6">
@@ -1350,253 +1349,6 @@
     </div>
   </div>
 
-  <!-- 10. MENU OPTION: SYSTEM SETTINGS MODAL -->
-  <div id="menuSettingsModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3">
-    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-100 overflow-hidden max-h-[92vh] flex flex-col">
-      <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between">
-        <h3 class="text-sm font-bold flex items-center space-x-1.5">
-          <i data-lucide="settings" class="w-4 h-4 text-blue-400"></i>
-          <span>Cloud Database &amp; Cross-Device Sync Settings</span>
-        </h3>
-        <button onclick="closeModal('menuSettingsModal')" class="text-slate-400 hover:text-white">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
-
-      <div class="p-5 overflow-y-auto space-y-4 text-xs">
-        
-        <!-- Google Sheet URL & Direct Launch -->
-        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
-          <div class="flex items-center justify-between">
-            <label class="font-bold text-slate-800">Connected Google Sheet URL</label>
-            <button type="button" onclick="launchConnectedSheet()" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] font-bold flex items-center space-x-1 transition shadow-xs">
-              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-              <span>Launch / Create Sheet</span>
-            </button>
-          </div>
-          <input type="url" id="menuSheetWebUrlInput" placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMd..." class="w-full px-3 py-2 rounded-lg border border-slate-200 font-mono text-xs focus:ring-2 focus:ring-blue-500">
-          <p class="text-[11px] text-slate-500">Click <strong>"Launch / Create Sheet"</strong> to automatically create a new spreadsheet or open your linked database.</p>
-        </div>
-
-        <!-- Apps Script Endpoint -->
-        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5">
-          <label class="block font-bold text-slate-800">Google Apps Script Web App Endpoint URL</label>
-          <input type="url" id="menuScriptUrlInput" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full px-3 py-2 rounded-lg border border-slate-200 font-mono text-xs focus:ring-2 focus:ring-blue-500">
-          <p class="text-[11px] text-slate-500">Must end in <code>/exec</code> and deployment access set to <strong>"Anyone"</strong>.</p>
-        </div>
-
-        <!-- Cross-Device Sync Link Helper -->
-        <div class="p-3.5 bg-blue-50/60 rounded-xl border border-blue-200 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-blue-900 text-xs flex items-center">
-              <i data-lucide="smartphone" class="w-3.5 h-3.5 mr-1 text-blue-600"></i>
-              <span>One-Click Mobile Device Link</span>
-            </span>
-            <button type="button" onclick="copyMobileDeviceLink()" class="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-bold">
-              Copy Mobile Link
-            </button>
-          </div>
-          <p class="text-[11px] text-blue-800">
-            Send this URL to your phone (via WhatsApp, email, or Slack). Opening it on your mobile device will automatically configure the Google Sheet and Apps Script URLs without typing!
-          </p>
-          <input type="text" id="crossDeviceShareUrl" readonly class="w-full px-2.5 py-1.5 rounded border border-blue-200 bg-white text-[10px] font-mono text-slate-600 select-all">
-        </div>
-
-        <!-- Apps Script Code Box -->
-        <div class="p-3.5 bg-slate-900 rounded-xl text-slate-200 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-mono font-bold text-xs text-blue-400">Google Apps Script Backend (Code.gs)</span>
-            <button type="button" onclick="copyAppsScriptCode()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-[11px] font-semibold flex items-center space-x-1 border border-slate-700">
-              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span>Copy Code</span>
-            </button>
-          </div>
-          <div class="max-h-44 overflow-y-auto bg-slate-950 p-2.5 rounded font-mono text-[10px] leading-relaxed select-all text-slate-300">
-            <pre id="appsScriptCodeBlock">
-// ===================================================
-// IT OPERATIONS HUB - BACKEND WEBHOOK SCRIPT (Code.gs)
-// Automatically initializes all 5 tabs and handles sync
-// ===================================================
-
-function onOpen() {
-  var ui = SpreadsheetApp.getUi();
-  ui.createMenu("IT Operations Hub")
-    .addItem("Initialize / Repair All 5 Tabs", "menuInitializeSheets")
-    .addToUi();
-  
-  initializeAllSheets(SpreadsheetApp.getActiveSpreadsheet());
-}
-
-function menuInitializeSheets() {
-  initializeAllSheets(SpreadsheetApp.getActiveSpreadsheet());
-  SpreadsheetApp.getActiveSpreadsheet().toast("All 5 Tabs initialized successfully!", "IT Portal", 5);
-}
-
-function doPost(e) {
-  var lock = LockService.getScriptLock();
-  lock.tryLock(10000);
-
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    initializeAllSheets(ss);
-
-    var contents = e.postData && e.postData.contents ? e.postData.contents : "{}";
-    var data = JSON.parse(contents);
-    var action = data.action;
-
-    // Bi-Directional Full Cloud Sync
-    if (action === "SYNC_ALL") {
-      var payload = data.data || {};
-      
-      // Update Tickets
-      if (payload.tickets && payload.tickets.length) {
-        var tSheet = ss.getSheetByName("Tickets");
-        if (tSheet.getLastRow() > 1) {
-          tSheet.getRange(2, 1, tSheet.getLastRow() - 1, 12).clearContent();
-        }
-        var ticketRows = payload.tickets.map(function(t) {
-          return [
-            t.id, t.createdDate || "", t.name || "", t.email || "", t.dept || "",
-            t.category || "", t.priority || "", t.assigned || "", t.desc || "",
-            t.status || "Open", t.remarks || "", JSON.stringify(t.stegLogs || [])
-          ];
-        });
-        if (ticketRows.length) {
-          tSheet.getRange(2, 1, ticketRows.length, 12).setValues(ticketRows);
-        }
-      }
-
-      // Update Assets
-      if (payload.assets && payload.assets.length) {
-        var aSheet = ss.getSheetByName("Assets");
-        if (aSheet.getLastRow() > 1) {
-          aSheet.getRange(2, 1, aSheet.getLastRow() - 1, 20).clearContent();
-        }
-        var assetRows = payload.assets.map(function(a, idx) {
-          return [
-            idx + 1, a.tag || "", a.serial || "", a.classification || "", a.assetType || "",
-            a.model || "", a.configuration || "", a.warrantyStart || "", a.warrantyEnd || "",
-            a.value || "", a.empId || "", a.empName || "", a.manager || "", a.dept || "",
-            a.assignedDate || "", a.vendor || "", a.status || "", a.location || "",
-            a.licenseKey || "", a.remarks || ""
-          ];
-        });
-        if (assetRows.length) {
-          aSheet.getRange(2, 1, assetRows.length, 20).setValues(assetRows);
-        }
-      }
-
-      // Update Licenses
-      if (payload.licenses && payload.licenses.length) {
-        var lSheet = ss.getSheetByName("Licenses");
-        if (lSheet.getLastRow() > 1) {
-          lSheet.getRange(2, 1, lSheet.getLastRow() - 1, 16).clearContent();
-        }
-        var licRows = payload.licenses.map(function(l) {
-          return [
-            l.id || "", l.softwareName || "", l.category || "", l.acquisitionType || "",
-            l.totalSeats || 1, l.licenseKey || "", l.portalUrl || "", l.currency || "INR",
-            l.cost || "0", l.purchaseDate || "", l.isLifetime ? "YES" : "NO",
-            l.expiryDate || "", l.assignedScope || "ALL", l.assignedDept || "",
-            l.assignedUser || "", l.status || "ACTIVE"
-          ];
-        });
-        if (licRows.length) {
-          lSheet.getRange(2, 1, licRows.length, 16).setValues(licRows);
-        }
-      }
-
-      // Update Projects
-      if (payload.projects && payload.projects.length) {
-        var pSheet = ss.getSheetByName("Projects");
-        if (pSheet.getLastRow() > 1) {
-          pSheet.getRange(2, 1, pSheet.getLastRow() - 1, 8).clearContent();
-        }
-        var projRows = payload.projects.map(function(p) {
-          return [
-            p.id || "", p.title || "", p.lead || "", p.dueDate || "",
-            p.status || "", p.progress || 0, p.remarks || "", Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss")
-          ];
-        });
-        if (projRows.length) {
-          pSheet.getRange(2, 1, projRows.length, 8).setValues(projRows);
-        }
-      }
-
-      // Update Daily Routine
-      if (payload.routines && payload.routines.length) {
-        var rSheet = ss.getSheetByName("Daily_Routine");
-        if (rSheet.getLastRow() > 1) {
-          rSheet.getRange(2, 1, rSheet.getLastRow() - 1, 8).clearContent();
-        }
-        var routRows = payload.routines.map(function(r) {
-          return [
-            r.id || "", r.date || "", r.techName || "", r.shift || "",
-            r.completed || "", r.pending || "-", r.blockers || "-", Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss")
-          ];
-        });
-        if (routRows.length) {
-          rSheet.getRange(2, 1, routRows.length, 8).setValues(routRows);
-        }
-      }
-
-      return createJsonResponse({ result: "success", message: "Cloud sync complete" });
-    }
-
-    return createJsonResponse({ result: "success", action: action });
-  } catch (err) {
-    return createJsonResponse({ result: "error", message: err.toString() });
-  } finally {
-    lock.releaseLock();
-  }
-}
-
-function doGet(e) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  initializeAllSheets(ss);
-  return createJsonResponse({ status: "active", message: "IT Operations Webhook is running. All 5 tabs initialized." });
-}
-
-function initializeAllSheets(ss) {
-  var sheetsDef = [
-    { name: "Tickets", headers: ["Ticket ID", "Created Date", "Requester Name", "Email", "Department", "Category", "Priority", "Assign ID", "Description", "Status", "Resolution Remarks", "Steg Logs JSON"] },
-    { name: "Assets", headers: ["SL NO", "ASSET ID CODE", "Serial Number", "Classification", "Asset Type", "Model Name", "Configuration", "Warranty Start", "Warranty End", "Value", "Employee ID", "Employee Name", "Manager", "Department", "Assigned Date", "VENDOR", "Status", "Location", "License key", "Remarks"] },
-    { name: "Licenses", headers: ["License ID", "Software Name", "Category", "Acquisition Type", "Total Seats", "License Key", "Vendor Portal URL", "Currency", "Cost", "Purchase Date", "Is Lifetime", "Expiry Date", "Scope", "Department", "Assigned Users JSON", "Status"] },
-    { name: "Projects", headers: ["Project ID", "Project Name", "Lead", "Target Due Date", "Status", "Progress %", "Remarks", "Last Updated"] },
-    { name: "Daily_Routine", headers: ["Log ID", "Date", "Technician Name", "Shift", "Completed Tasks", "Pending Follow Ups", "Blockers", "Logged At"] }
-  ];
-
-  sheetsDef.forEach(function(def) {
-    var sheet = ss.getSheetByName(def.name);
-    if (!sheet) {
-      sheet = ss.insertSheet(def.name);
-    }
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow(def.headers);
-      var headerRange = sheet.getRange(1, 1, 1, def.headers.length);
-      headerRange.setBackground("#0f172a").setFontColor("#ffffff").setFontWeight("bold");
-      sheet.setFrozenRows(1);
-    }
-  });
-}
-
-function createJsonResponse(data) {
-  return ContentService.createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-            </pre>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-end space-x-2">
-        <button type="button" onclick="closeModal('menuSettingsModal')" class="px-4 py-1.5 border border-slate-200 text-slate-600 rounded-lg font-semibold hover:bg-slate-50">Cancel</button>
-        <button type="button" onclick="saveMenuSettingsConfig()" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-sm transition">Save Settings</button>
-      </div>
-    </div>
-  </div>
-
   <!-- 11. MENU OPTION: BULK UPLOAD EXCEL MODAL -->
   <div id="menuUploadModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3">
     <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
@@ -1947,18 +1699,20 @@ function createJsonResponse(data) {
     let routines = [];
     let currentViewingTicket = null;
     let parsedBulkAssets = [];
-    let scriptUrl = localStorage.getItem('it_portal_script_url') || "";
-    let sheetWebUrl = localStorage.getItem('it_portal_sheet_web_url') || "";
+    let isFetchingCloud = false;
+    
+    // Direct permanent Google Apps Script Backend URL for PC, Mobile, and GitHub Pages
+    const HARDCODED_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxM1IFofebMEECo4N8rEpLyfzp5KPEnexo9Xfqi00poVura3Vyz3a_l0kpCn6He6eZbRg/exec";
+    let scriptUrl = HARDCODED_SCRIPT_URL;
 
     // App Initialization
     window.onload = function() {
       initState();
+      // Automatically pull live data from Google Sheet on start
+      fetchCloudData(true);
     };
 
     function initState() {
-      // 1. Auto-configure settings if URL query parameters exist (?script=...&sheet=...)
-      checkUrlQueryForCloudCredentials();
-
       const savedTickets = localStorage.getItem('it_portal_tickets');
       const savedLicenses = localStorage.getItem('it_portal_licenses');
       const savedAssets = localStorage.getItem('it_portal_assets');
@@ -1971,22 +1725,19 @@ function createJsonResponse(data) {
       projects = savedProjects ? JSON.parse(savedProjects) : initialData.projects;
       routines = savedRoutines ? JSON.parse(savedRoutines) : initialData.routines;
 
-      // Populate Settings inputs
-      const menuScriptInput = document.getElementById('menuScriptUrlInput');
-      const menuSheetInput = document.getElementById('menuSheetWebUrlInput');
-      if (menuScriptInput) menuScriptInput.value = scriptUrl;
-      if (menuSheetInput) menuSheetInput.value = sheetWebUrl;
-      updateCrossDeviceShareUrl();
-
       // Render All Modules
+      renderAllModules();
+      buildDeptCheckboxGroup();
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderAllModules() {
       renderTickets();
       renderLicenses();
       renderAssets();
       renderProjects();
       renderRoutines();
-      buildDeptCheckboxGroup();
-
-      if (window.lucide) lucide.createIcons();
     }
 
     function persistState() {
@@ -1997,58 +1748,7 @@ function createJsonResponse(data) {
       localStorage.setItem('it_portal_routines', JSON.stringify(routines));
     }
 
-    // ==========================================
-    // CROSS-DEVICE & GOOGLE CLOUD SYNC ENGINE
-    // ==========================================
-    function checkUrlQueryForCloudCredentials() {
-      const params = new URLSearchParams(window.location.search);
-      const scriptParam = params.get('script');
-      const sheetParam = params.get('sheet');
-
-      if (scriptParam || sheetParam) {
-        if (scriptParam) {
-          scriptUrl = decodeURIComponent(scriptParam);
-          localStorage.setItem('it_portal_script_url', scriptUrl);
-        }
-        if (sheetParam) {
-          sheetWebUrl = decodeURIComponent(sheetParam);
-          localStorage.setItem('it_portal_sheet_web_url', sheetWebUrl);
-        }
-        const cleanUrl = window.location.origin + window.location.pathname;
-        window.history.replaceState({}, document.title, cleanUrl);
-        showToast('Settings auto-configured from mobile link!', 'success');
-      }
-    }
-
-    function updateCrossDeviceShareUrl() {
-      const shareInput = document.getElementById('crossDeviceShareUrl');
-      if (!shareInput) return;
-      if (!scriptUrl && !sheetWebUrl) {
-        shareInput.value = "Save your Google Sheet & Apps Script URLs above first to generate your mobile link.";
-      } else {
-        const base = window.location.origin + window.location.pathname;
-        const sUrl = encodeURIComponent(scriptUrl || '');
-        const gUrl = encodeURIComponent(sheetWebUrl || '');
-        shareInput.value = `${base}?script=${sUrl}&sheet=${gUrl}`;
-      }
-    }
-
-    function copyMobileDeviceLink() {
-      const shareInput = document.getElementById('crossDeviceShareUrl');
-      if (!shareInput || !scriptUrl) {
-        showToast('Please save your Apps Script URL first!', 'warning');
-        return;
-      }
-      const el = document.createElement('textarea');
-      el.value = shareInput.value;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
-      showToast('Mobile auto-config link copied to clipboard!', 'success');
-    }
-
-    // CORS & GitHub Pages friendly cloud webhook dispatcher
+    // CORS & GitHub Pages friendly cloud webhook dispatcher using permanent backend URL
     function sendCloudWebhook(action, payload) {
       if (!scriptUrl) return Promise.resolve();
 
@@ -2064,71 +1764,115 @@ function createJsonResponse(data) {
       });
     }
 
-    // Manual Full Cloud Sync
-    async function triggerManualSync() {
-      if (!scriptUrl) {
-        showToast('Please set your Apps Script URL in Menu > Settings first.', 'warning');
-        openMenuAction('settings');
-        return;
+    // ==========================================
+    // LIVE GOOGLE SHEET DATA FETCH (GET / JSONP)
+    // ==========================================
+    function showSyncBanner(text) {
+      const banner = document.getElementById('cloudSyncBanner');
+      const bannerText = document.getElementById('cloudSyncBannerText');
+      if (banner && bannerText) {
+        bannerText.innerText = text;
+        banner.classList.remove('hidden');
       }
+    }
+
+    function dismissSyncBanner() {
+      const banner = document.getElementById('cloudSyncBanner');
+      if (banner) banner.classList.add('hidden');
+    }
+
+    // Pull live rows directly from Google Sheet so deletions/edits made in the sheet reflect in the website
+    function fetchCloudData(silent = false) {
+      if (!scriptUrl || isFetchingCloud) return;
+      isFetchingCloud = true;
 
       const syncIcon = document.getElementById('syncIcon');
       const btnLabel = document.getElementById('syncButtonLabel');
       if (syncIcon) syncIcon.classList.add('animate-spin');
       if (btnLabel) btnLabel.innerText = "Syncing...";
 
-      try {
-        const fullPayload = {
-          tickets: tickets,
-          assets: assets,
-          licenses: licenses,
-          projects: projects,
-          routines: routines
-        };
+      if (!silent) showSyncBanner("Fetching live records from Google Sheet...");
 
-        await sendCloudWebhook('SYNC_ALL', fullPayload);
-        showToast('All 5 modules synchronized with Google Sheets!', 'success');
-      } catch (err) {
-        console.error("Sync failed:", err);
-        showToast('Sync request queued to Google Sheets.', 'info');
-      } finally {
-        setTimeout(() => {
-          if (syncIcon) syncIcon.classList.remove('animate-spin');
-          if (btnLabel) btnLabel.innerText = "Sync Cloud";
-        }, 1200);
+      // Use a dynamic callback function name for JSONP to bypass all CORS/redirect restrictions from GitHub Pages
+      const callbackName = 'googleSheetCallback_' + Math.floor(Math.random() * 1000000);
+
+      const timeoutId = setTimeout(() => {
+        cleanup();
+        isFetchingCloud = false;
+        if (syncIcon) syncIcon.classList.remove('animate-spin');
+        if (btnLabel) btnLabel.innerText = "Sync Cloud";
+        if (!silent) showToast("Live sync timed out. Using current local data.", "warning");
+        dismissSyncBanner();
+      }, 15000);
+
+      function cleanup() {
+        clearTimeout(timeoutId);
+        delete window[callbackName];
+        const scriptEl = document.getElementById(callbackName);
+        if (scriptEl) scriptEl.remove();
       }
+
+      window[callbackName] = function(response) {
+        cleanup();
+        isFetchingCloud = false;
+        if (syncIcon) syncIcon.classList.remove('animate-spin');
+        if (btnLabel) btnLabel.innerText = "Sync Cloud";
+        dismissSyncBanner();
+
+        if (response && response.status === 'success' && response.data) {
+          applyCloudData(response.data);
+          showToast("Live data synced from Google Sheet!", "success");
+        } else {
+          console.warn("Could not parse cloud data response:", response);
+          if (!silent) showToast("Google Sheet returned empty data.", "info");
+        }
+      };
+
+      // Append script tag for reliable cross-origin JSONP retrieval
+      const scriptEl = document.createElement('script');
+      scriptEl.id = callbackName;
+      scriptEl.src = `${scriptUrl}?action=GET_ALL&callback=${callbackName}&_t=${Date.now()}`;
+      scriptEl.onerror = function() {
+        cleanup();
+        isFetchingCloud = false;
+        if (syncIcon) syncIcon.classList.remove('animate-spin');
+        if (btnLabel) btnLabel.innerText = "Sync Cloud";
+        dismissSyncBanner();
+        console.warn("Failed to reach Google Apps Script via JSONP.");
+      };
+      document.body.appendChild(scriptEl);
     }
 
-    function launchConnectedSheet() {
-      if (sheetWebUrl) {
-        window.open(sheetWebUrl, '_blank');
-      } else {
-        window.open('https://sheets.new', '_blank');
-        showToast('Opening new Google Sheet. Copy Code and paste into Extensions > Apps Script.', 'info');
+    // Update portal state to strictly match whatever exists in the Google Sheet
+    function applyCloudData(cloudData) {
+      if (Array.isArray(cloudData.tickets)) {
+        tickets = cloudData.tickets;
       }
+      if (Array.isArray(cloudData.assets)) {
+        assets = cloudData.assets;
+      }
+      if (Array.isArray(cloudData.licenses)) {
+        licenses = cloudData.licenses;
+      }
+      if (Array.isArray(cloudData.projects)) {
+        projects = cloudData.projects;
+      }
+      if (Array.isArray(cloudData.routines)) {
+        routines = cloudData.routines;
+      }
+
+      // Persist live sheet data to local storage so offline access matches the sheet
+      persistState();
+      // Re-render UI
+      renderAllModules();
+      if (window.lucide) lucide.createIcons();
     }
 
-    function saveMenuSettingsConfig() {
-      scriptUrl = document.getElementById('menuScriptUrlInput')?.value.trim() || "";
-      sheetWebUrl = document.getElementById('menuSheetWebUrlInput')?.value.trim() || "";
-
-      localStorage.setItem('it_portal_script_url', scriptUrl);
-      localStorage.setItem('it_portal_sheet_web_url', sheetWebUrl);
-
-      updateCrossDeviceShareUrl();
-      showToast('Settings saved successfully!', 'success');
-      closeModal('menuSettingsModal');
-    }
-
-    function copyAppsScriptCode() {
-      const code = document.getElementById('appsScriptCodeBlock').innerText;
-      const el = document.createElement('textarea');
-      el.value = code;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
-      showToast('Google Apps Script copied to clipboard!', 'success');
+    // Manual Full Cloud Sync Button Action
+    function triggerManualSync() {
+      showToast("Syncing with Google Sheet...", "info");
+      // Pull live sheet state into the website
+      fetchCloudData(false);
     }
 
     // ==========================================
@@ -2185,9 +1929,7 @@ function createJsonResponse(data) {
       const menu = document.getElementById('topDropdownMenu');
       if (menu) menu.classList.add('hidden');
 
-      if (action === 'settings') {
-        openModal('menuSettingsModal');
-      } else if (action === 'upload') {
+      if (action === 'upload') {
         openModal('menuUploadModal');
       } else if (action === 'download') {
         openModal('menuDownloadModal');
