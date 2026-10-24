@@ -39,39 +39,41 @@
 
   <!-- TOP HEADER NAVIGATION -->
   <header class="bg-emerald-950 text-white sticky top-0 z-40 shadow-md border-b border-emerald-900">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-h-[3.75rem] py-2 flex items-center justify-between gap-2">
       
       <!-- Logo & Title -->
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white font-black shadow-inner">
-          <i data-lucide="key-round" class="w-5 h-5"></i>
+      <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+        <div class="w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white font-black shadow-inner">
+          <i data-lucide="key-round" class="w-4 h-4 sm:w-5 sm:h-5"></i>
         </div>
-        <div>
-          <h1 class="text-base sm:text-lg font-bold leading-tight tracking-tight text-white flex items-center gap-2">
-            Software Licenses & Subscriptions
-            <span class="text-[10px] bg-emerald-800 text-emerald-200 px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold border border-emerald-700">Hub</span>
-          </h1>
-          <p class="text-xs text-emerald-300/80">Corporate Software Entitlements & Procurement Registry</p>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <h1 class="text-sm sm:text-base font-bold leading-tight tracking-tight text-white truncate">
+              Licenses & Subscriptions
+            </h1>
+            <span class="text-[9px] sm:text-[10px] bg-emerald-800 text-emerald-200 px-1.5 py-0.5 rounded-full uppercase tracking-wider font-semibold border border-emerald-700 shrink-0">Hub</span>
+          </div>
+          <p class="text-[10px] sm:text-xs text-emerald-300/80 truncate leading-tight mt-0.5">Corporate Software & Entitlements</p>
         </div>
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex items-center space-x-2 sm:space-x-3">
+      <div class="flex items-center space-x-1 sm:space-x-2 shrink-0">
         <!-- Live Sync Button -->
-        <button id="btnSyncCloud" onclick="fetchCloudData()" class="px-3 py-1.5 bg-emerald-800/90 hover:bg-emerald-700 active:bg-emerald-900 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition border border-emerald-600/50 shadow-xs" title="Refresh live rows from Google Sheet">
+        <button id="btnSyncCloud" onclick="fetchCloudData()" class="h-8 w-8 sm:h-auto sm:w-auto px-2 sm:px-3 py-1.5 bg-emerald-800/90 hover:bg-emerald-700 active:bg-emerald-900 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition border border-emerald-600/50 shadow-xs" title="Refresh live rows from Google Sheet">
           <i id="syncCloudIcon" data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
           <span class="hidden sm:inline">Sync Cloud</span>
         </button>
 
         <!-- Download Excel -->
-        <button onclick="downloadLicensesExcel()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-xs" title="Export exact 17 columns to Excel">
+        <button onclick="downloadLicensesExcel()" class="h-8 w-8 sm:h-auto sm:w-auto px-2 sm:px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-xs" title="Export exact 17 columns to Excel">
           <i data-lucide="download" class="w-3.5 h-3.5"></i>
-          <span class="hidden sm:inline">Export Excel</span>
+          <span class="hidden sm:inline">Export</span>
         </button>
 
         <!-- Top Menu Toggle -->
         <div class="relative">
-          <button id="menuButton" onclick="toggleDropdownMenu()" class="p-2 bg-emerald-900 hover:bg-emerald-800 text-white rounded-lg border border-emerald-700 transition" title="Menu">
+          <button id="menuButton" onclick="toggleDropdownMenu()" class="h-8 w-8 sm:h-auto sm:w-auto p-2 bg-emerald-900 hover:bg-emerald-800 text-white rounded-lg border border-emerald-700 transition flex items-center justify-center" title="Menu">
             <i data-lucide="menu" class="w-4 h-4"></i>
           </button>
           
